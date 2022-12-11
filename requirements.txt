@@ -1,0 +1,5 @@
+numpy
+scipy
+
+git+https://github.com/p403n1x87/pytikz.git#egg=pytikz
+austin-python
