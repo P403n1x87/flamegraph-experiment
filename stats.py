@@ -1,12 +1,36 @@
 import typing as t
 
 import numpy as np
+import numpy.typing as npt
 from scipy.stats import f
 
 
 def hotelling_two_sample_test(
-    X, Y, p_v=0.01
-) -> t.Tuple[np.ndarray, float, float, list]:
+    X: npt.NDArray[np.int32], Y: npt.NDArray[np.int32], p_v: float = 0.01
+) -> t.Tuple[npt.NDArray[np.int32], float, float, list]:
+    """Perform a two-sample Hotelling T^2 test on the given data.
+
+    Parameters
+    ----------
+    X : np.ndarray
+        The first sample data.
+    Y : np.ndarray
+        The second sample data.
+    p_v : float, optional
+        The p-value threshold for the test, by default 0.01.
+
+    Returns
+    -------
+    np.ndarray
+        The difference between the means of the two samples.
+    float
+        The F-statistic from the Hotelling T^2 test.
+    float
+        The p-value of the test.
+    list[bool]
+        A list of booleans indicating which features in the difference array
+        are significantly different.
+    """
     nx, p = X.shape
     ny, q = Y.shape
 
@@ -31,9 +55,9 @@ def hotelling_two_sample_test(
     f_pdf = f(p, dof)
     p_value = 1 - f_pdf.cdf(statistic)
 
-    # Compute the map of the stacks that are significantly different
+    # Compute the array of the stacks that are significantly different
     fs = f_pdf.ppf(1 - p_v)
     ws = pooled_cov.diagonal() * fs / g
-    m = [(d**2 - w >= 0) for d, w in zip(delta, ws)]
+    m: list[bool] = [(d**2 >= w) for d, w in zip(delta, ws)]
 
     return delta, statistic, p_value, m
